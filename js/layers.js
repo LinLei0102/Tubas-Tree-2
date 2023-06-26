@@ -512,19 +512,22 @@ addLayer("a", {
         title: "Transcended Tubas",
         description: "Gain more transcension points based on tubas.",
         cost: new Decimal(1e130),
+        unlocked(){return hasMilestone("to",5)},
         effect(){return player.points.add(1).log10().div(50).add(1)},
-        effectDisplay(){return `x${format(this.effect())}`}
+        effectDisplay(){return `x${format(this.effect())}`},
       },
       22: {
         title: "Small Ascension Bonus",
         description: "1,000x ascension points. Thank you, very cool",
         cost: new Decimal(1e230),
+        unlocked(){return hasMilestone("to",5)},
       },
       23: {
         title: "Scott the Woz",
         description: '<i>"This game blows!"</i><br><b>Virgin Upgrade Bonus</b> is more effective.',
         tooltip: "15^PUs -> 1,000^PUs",
         cost: new Decimal(1e250),
+        unlocked(){return hasMilestone("to",5)},
       },
     },
     buyables: {
