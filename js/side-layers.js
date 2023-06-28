@@ -12,7 +12,7 @@ addLayer("g", {
     type: "none", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
     row: "side", // Row the layer is in on the tree (0 is the first row)
 tabFormat: [
-    ["display-text", () => `You have ${player.g.achievements.length}/26 achievements (${format(new Decimal(player.g.achievements.length).div(26).mul(100))}%)<br><br>`],
+    ["display-text", () => `You have ${player.g.achievements.length}/34 achievements (${format(new Decimal(player.g.achievements.length).div(34).mul(100))}%)<br><br>`],
     "achievements"
 ],
     layerShown(){return true},
@@ -147,6 +147,46 @@ tabFormat: [
       done(){return player.points.gte("1e10000")},
       tooltip:"Reach 1e10,000 tubas."
     },
+    53: {
+        name: "The Next Era",
+      done(){return hasMilestone("to",7)},
+      tooltip:"Unlock Challenges."
+    },
+    54: {
+        name: "Not-so-challenging",
+      done(){return player.points.gte("1e24500") && (inChallenge("t",11) || inChallenge("t",12) || inChallenge("t",21) || inChallenge("t",22))},
+      tooltip:"Reach 1e24,500 points in one of the first 4 Challenges. Reward: Ascension points boost their own gain."
+    },
+    55: {
+        name: "One of each generator",
+      done(){return getBuyableAmount("sh",23).gte(1)},
+      tooltip:"Buy Shard Generator 6. Reward: The first 3 Shard Generators are 1,000x stronger."
+    },
+    56: {
+        name: "No, there's no HB",
+      done(){return player.sb.points.gte(1)},
+      tooltip:"Get a Super-Booster."
+    },
+    61: {
+        name: "Welcome to the Infinite",
+      done(){return player.t.points.gte(1.79e308)},
+      tooltip:"Reach 1.79e308 transcension points."
+    },
+    62: {
+        name: "Inflation 101",
+      done(){return challengeCompletions("t",22) >= 3},
+      tooltip:"Unlock the 3rd prestige buyable."
+    },
+    63: {
+        name: "Extreme Gains",
+      done(){return player.points.gte("1e100000")},
+      tooltip:"Reach 1e100,000 tubas."
+    },
+    64: {
+      name: "Average AD hater",
+      done(){return player.a.points.gte("1e7350") && inChallenge("t",21)},
+      tooltip:'Reach 1e7350 ascension points in Challenge 3. Reward: The shard effect softcap is slightly weaker.'
+    },
 },
 })
 
@@ -168,8 +208,8 @@ addLayer("sk", {
     ["infobox","lore"],
     "main-display",
     ["display-text", () => `Experience is gained every time you reset, based on what layer and the amount of resources gained.<br><br><span style="color: yellow">Temporal Skill:</span> ${player.sk.temporalSkill}/1000${hasMilestone("to",3) ? ` <span style="color:#34EB74">(Effective: ${format(effectiveLvls("temporal"))})</span>` : ``}<br><span style="color: #AA00AA">Cloning Skill:</span> ${player.sk.cloningSkill}/1000${hasMilestone("to",3) ? ` <span style="color:#34EB74">(Effective: ${format(effectiveLvls("cloning"))})</span>` : ``}<br>`],
-    () => hasMilestone("to",3) ? ["display-text", `<span style="color: cyan">Inception Skill:</span> ${player.sk.inceptionSkill}/1000<br>`] : "",
-    () => hasMilestone("to",6) ? ["display-text", `<span style="color: green">Discount Skill:</span> ${player.sk.discountSkill}/1000<br>`] : "",
+    () => hasMilestone("to",3) ? ["display-text", `<span style="color: cyan">Inception Skill:</span> ${player.sk.inceptionSkill}/1000${hasUpgrade("t",24) ? ` <span style="color:#34EB74">(Effective: ${format(effectiveLvls("inception"))})</span>` : ``}<br>`] : "",
+    () => hasMilestone("to",6) ? ["display-text", `<span style="color: green">Discount Skill:</span> ${player.sk.discountSkill}/1000${hasUpgrade("t",24) ? ` <span style="color:#34EB74">(Effective: ${format(effectiveLvls("discount"))})</span>` : ``}<br>`] : "",
     "clickables",
     ["display-text", () => `<span style="color: yellow">Temporal Skill: ${effectiveLvls("temporal").pow(0.75).mul(hasAchievement("g",26)?2:1).floor()} free Time Accelerators, ${effectiveLvls("temporal").pow(0.4).mul(hasAchievement("g",26)?2:1).floor()} free Accelerator Boosts</span><br><span style="color: #AA00AA">Cloning Skill: ${effectiveLvls("cloning").pow(0.8).mul(hasUpgrade("a",14)?2:1).floor()} free Duplicators, ${format(new Decimal(1.4).pow(effectiveLvls("cloning")))}x more prestige points</span><br>`],
     () => hasMilestone("to",3) ? ["display-text", `<span style="color: cyan">Inception Skill: +${format(effectiveLvls("inception").pow(0.85))} Generator production exponent, ${format(effectiveLvls("inception").pow(0.9).div(25).add(1))}x effective Temporal and Cloning skill levels</span><br>`] : "",
@@ -243,16 +283,20 @@ function expMult() {
 function effectiveLvls(x) {
   switch (x) {
     case "temporal":
-      return player.sk.temporalSkill.mul(player.sk.inceptionSkill.pow(0.9).div(25).add(1))
+      return player.sk.temporalSkill.mul(effectiveLvls("inception").pow(0.9).div(25).add(1))
     break;
     case "cloning":
-      return player.sk.cloningSkill.mul(player.sk.inceptionSkill.pow(0.9).div(25).add(1))
+      return player.sk.cloningSkill.mul(effectiveLvls("inception").pow(0.9).div(25).add(1))
     break;
     case "inception":
-      return player.sk.inceptionSkill
+      let x = player.sk.inceptionSkill
+      if(hasUpgrade("t",24)) x = x.mul(player.sk.inceptionSkill.pow(0.9).div(25).add(1).cbrt())
+      return x
     break;
     case "discount":
-      return player.sk.discountSkill
+      let y = player.sk.discountSkill
+      if(hasUpgrade("t",24)) y = y.mul(effectiveLvls("inception").pow(0.9).div(25).add(1).cbrt())
+      return y
     break;
   }
 }
@@ -301,7 +345,7 @@ addLayer("to", {
           ["display-text", () => `You have ${format(player.to.transcend)} transcension tokens`],
           ["display-text", () => `You are generating ${format(player.t.points.pow(0.4).mul(boosterEffects(2)))} transcension tokens per second (base gen: TP^0.4)`],
           "blank",
-          ["milestones",[7]],
+          ["milestones",[7,8,9]],
           ],
       },
     },
@@ -344,7 +388,7 @@ addLayer("to", {
       },
       5: {
         requirementDescription: "1e70 ascension tokens",
-        effectDescription: "Unlock a 2nd row of Ascension Upgrades. (WIP)",
+        effectDescription: "Unlock a 2nd row of Ascension Upgrades.",
         done() { return player.to.ascend.gte(1e70) },
         unlocked() {return hasAchievement("g",43)},
       },
@@ -358,6 +402,22 @@ addLayer("to", {
         requirementDescription: "1e40 transcension tokens",
         effectDescription: "Unlock Challenges.",
         done() { return player.to.transcend.gte(1e40) },
+      },
+      8: {
+        requirementDescription: "1e80 transcension tokens",
+        effectDescription: "Unlock Shard Generators 4-6.",
+        done() { return player.to.transcend.gte(1e80) },
+      },
+      9: {
+        requirementDescription: "1e155 transcension tokens",
+        effectDescription: "Unlock Super-Boosters.",
+        done() { return player.to.transcend.gte(1e155) },
+      },
+      10: {
+        requirementDescription: "1e2960 ascension tokens",
+        effectDescription: "Unlock the 2nd Ascension Buyable.",
+        done() { return player.to.ascend.gte("1e2960") },
+        unlocked() {return hasAchievement("g",43)},
       },
     },
 })
@@ -376,24 +436,40 @@ addLayer("sh", {
     ["infobox","lore"],
     ["display-text", () => `You have <h2 style="color: #C600D8; text-shadow: 0px 0px 10px #C600D8">${formatWhole(player.t.points)}</h2> transcension points<br><br>`],
     ["display-text", () => `You have <h2 style="color: #AA66FF; text-shadow: 0px 0px 10px #AA66FF">${formatWhole(player.sh.points)}</h2> shards, multiplying tuba, prestige point, and ascension point gain by <h2 style="color: #AA66FF; text-shadow: 0px 0px 10px #AA66FF">${format(shardEffect())}</h2>x.<br><br>`],
+    () => shardEffect().gte("1e2000") ? ["display-text", `<span style="color:red">The shard effect is reduced past 1.00e2000x</span><br><br>`] : "",
     () => hasUpgrade("t",13) ? ["display-text", `<span style="color:orange">Thanks to Transcension Upgrade 3, all Shard Generators are ${format(upgradeEffect("t",13))}x more effective.</span><br><br>`] : "",
     "buyables",
     ],
     resource: "shards", // Name of prestige currency
     type: "none", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
     row: "side", // Row the layer is in on the tree (0 is the first row)
+    automate(){
+      if (player.sh.auto && hasMilestone("t",6)) {
+        setBuyableAmount("sh",11,tmp.sh.buyables[11].canAfford?player.t.points.log2().floor().add(1):getBuyableAmount("sh",11))
+        setBuyableAmount("sh",12,tmp.sh.buyables[12].canAfford?player.t.points.div(20).log(8).floor().add(1):getBuyableAmount("sh",12))
+        setBuyableAmount("sh",13,tmp.sh.buyables[13].canAfford?player.t.points.div(1000).log(50).floor().add(1):getBuyableAmount("sh",13))
+      }
+      if (player.sh.auto2 && hasMilestone("t",7)) {
+        setBuyableAmount("sh",21,tmp.sh.buyables[21].canAfford?player.t.points.div(1e120).log(100000).floor().add(1):getBuyableAmount("sh",21))
+        setBuyableAmount("sh",22,tmp.sh.buyables[22].canAfford?player.t.points.div(1e150).log(1e10).floor().add(1):getBuyableAmount("sh",22))
+        setBuyableAmount("sh",23,tmp.sh.buyables[23].canAfford?player.t.points.div(1e200).log(1e20).floor().add(1):getBuyableAmount("sh",23))
+      }
+    },
     position: 3,
     layerShown(){return player.t.total.gte(1)},
     update(diff) {
       player.sh.points = player.sh.points.add(buyableEffect(this.layer,11).mul(diff))
       player.sh.produced[11] = player.sh.produced[11].add(buyableEffect(this.layer,12).mul(diff))
       player.sh.produced[12] = player.sh.produced[12].add(buyableEffect(this.layer,13).mul(diff))
+      player.sh.produced[13] = player.sh.produced[13].add(buyableEffect(this.layer,21).mul(diff))
+      player.sh.produced[21] = player.sh.produced[21].add(buyableEffect(this.layer,22).mul(diff))
+      player.sh.produced[22] = player.sh.produced[22].add(buyableEffect(this.layer,23).mul(diff))
     },
     buyables: {
       11: {
         title: "Shard Generator 1",
         cost(x) { return Decimal.pow(2,x) },
-        display() {return `Generates shards based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Effect: +${format(this.effect())} shards/second`},
+        display() {return `Generates shards based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id])).max(1))}x<br>Effect: +${format(this.effect())} shards/second`},
         canAfford() {return player.t.points.gte(this.cost())},
         buy() {
             player.t.points = player.t.points.sub(this.cost())
@@ -403,13 +479,16 @@ addLayer("sh", {
           mult = x.add(player.sh.produced[this.id])
           if(hasUpgrade("t",13)) mult = mult.mul(upgradeEffect("t",13))
           if(hasAchievement("g",45)) mult = mult.mul(2)
+          mult = mult.mul(challengeEffect("t",21))
+          if(hasAchievement("g",55)) mult = mult.mul(1000)
+          mult = mult.mul(boosterEffects(4))
           return mult
         },
       },
       12: {
         title: "Shard Generator 2",
         cost(x) { return new Decimal(20).mul(Decimal.pow(8,x)) },
-        display() {return `Generates Shard Generator 1 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Effect: +${format(this.effect())} SG1/second`},
+        display() {return `Generates Shard Generator 1 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id])).max(1))}x<br>Effect: +${format(this.effect())} SG1/second`},
         canAfford() {return player.t.points.gte(this.cost())},
         buy() {
             player.t.points = player.t.points.sub(this.cost())
@@ -418,13 +497,15 @@ addLayer("sh", {
         effect(x) {
           mult = x.add(player.sh.produced[this.id])
           if(hasUpgrade("t",13)) mult = mult.mul(upgradeEffect("t",13))
+          mult = mult.mul(challengeEffect("t",21))
+          if(hasAchievement("g",55)) mult = mult.mul(1000)
           return mult
         },
       },
       13: {
         title: "Shard Generator 3",
         cost(x) { return new Decimal(1000).mul(Decimal.pow(50,x)) },
-        display() {return `Generates Shard Generator 2 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Effect: +${format(this.effect())} SG2/second`},
+        display() {return `Generates Shard Generator 2 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id])).max(1))}x<br>Effect: +${format(this.effect())} SG2/second`},
         canAfford() {return player.t.points.gte(this.cost())},
         buy() {
             player.t.points = player.t.points.sub(this.cost())
@@ -433,6 +514,60 @@ addLayer("sh", {
         effect(x) {
           mult = x.add(player.sh.produced[this.id])
           if(hasUpgrade("t",13)) mult = mult.mul(upgradeEffect("t",13))
+          mult = mult.mul(challengeEffect("t",21))
+          if(hasAchievement("g",55)) mult = mult.mul(1000)
+          return mult
+        },
+      },
+      21: {
+        title: "Shard Generator 4",
+        cost(x) { return new Decimal(1e120).mul(Decimal.pow(100000,x)) },
+        display() {return `Generates Shard Generator 3 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id])).max(1))}x<br>Effect: +${format(this.effect())} SG3/second`},
+        canAfford() {return player.t.points.gte(this.cost())},
+        buy() {
+            player.t.points = player.t.points.sub(this.cost())
+            setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+        },
+        unlocked() {return hasMilestone("to",8)},
+        effect(x) {
+          mult = x.add(player.sh.produced[this.id])
+          if(hasUpgrade("t",13)) mult = mult.mul(upgradeEffect("t",13))
+          mult = mult.mul(challengeEffect("t",21))
+          return mult
+        },
+      },
+      22: {
+        title: "Shard Generator 5",
+        cost(x) { return new Decimal(1e150).mul(Decimal.pow(1e10,x)) },
+        display() {return `Generates Shard Generator 4 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id])).max(1))}x<br>Effect: +${format(this.effect())} SG4/second`},
+        canAfford() {return player.t.points.gte(this.cost())},
+        buy() {
+            player.t.points = player.t.points.sub(this.cost())
+            setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+        },
+        unlocked() {return hasMilestone("to",8)},
+        effect(x) {
+          mult = x.add(player.sh.produced[this.id])
+          if(hasUpgrade("t",13)) mult = mult.mul(upgradeEffect("t",13))
+          mult = mult.mul(challengeEffect("t",21))
+          return mult
+        },
+      },
+      23: {
+        title: "Shard Generator 6",
+        cost(x) { return new Decimal(1e200).mul(Decimal.pow(1e20,x)) },
+        display() {return `Generates Shard Generator 5 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id])).max(1))}x<br>Effect: +${format(this.effect())} SG5/second`},
+        canAfford() {return player.t.points.gte(this.cost())},
+        buy() {
+            player.t.points = player.t.points.sub(this.cost())
+            setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+        },
+        unlocked() {return hasMilestone("to",8)},
+        effect(x) {
+          mult = x.add(player.sh.produced[this.id])
+          if(hasUpgrade("t",13)) mult = mult.mul(upgradeEffect("t",13))
+          mult = mult.mul(challengeEffect("t",21))
+          if(hasUpgrade("t",23)) mult = mult.mul(100000)
           return mult
         },
       },
@@ -441,5 +576,7 @@ addLayer("sh", {
 
 function shardEffect() {
   let mult = player.sh.points.pow(hasUpgrade("t",14)?3:0.5).add(1)
+  if(mult.gte("1e2000")) mult = mult.div("1e2000").pow(hasAchievement("g",64)?0.3:0.25).mul("1e2000")
+  if(inChallenge("t",21)) mult = new Decimal(1)
   return mult
 }

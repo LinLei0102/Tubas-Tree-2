@@ -13,12 +13,22 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.1",
-	name: "The First Update!",
+	num: "0.2",
+	name: "The Challenges Update",
 }
 
 let changelog = `<h1>Tuba's Tree 2 Changelog</h1><br><span style="color:red;"><b>WARNING: SPOILERS!</b></span><br><br>
+  <h3>v0.2: The Challenges Update (6/28/2023)</h3><br>
+    <b>Endgame: 1e135,000 tubas</b><br>
+    - Added 6 Challenges.<br>
+    - Added Shard Generators 4-6.<br>
+    - Added Super-Boosters.<br>
+    - Added new upgrades, buyables, and milestones.<br>
+    - Added 8 Achievements.<br>
+		- Fixed some display stuff.<br>
+    - Fixed a bug where 2nd row ascension upgrades were unlocked early.<br><br>
 	<h3>v0.1: The First Update! (6/25/2023)</h3><br>
+    <b>Endgame: 1e12,000 tubas</b><br>
 		- Added Prestige.<br>
     - Added Ascension.<br>
     - Added Transcension.<br>
@@ -62,6 +72,10 @@ function getPointGen() {
   if(hasUpgrade("p",23)) gain = gain.mul(upgradeEffect("p",23))
   gain = gain.mul(buyableEffect("a",11))
   gain = gain.mul(shardEffect())
+  gain = gain.mul(buyableEffect("a",12))
+  gain = gain.pow(challengeEffect("t",12))
+  if(inChallenge("t",12)) gain = gain.div(player.t.divisor)
+  if(inChallenge("t",32)) gain = gain.pow(0.01)
 	return gain
 }
 
@@ -71,12 +85,13 @@ function addedPlayerData() { return {
 
 // Display extra things at the top of the page
 var displayThings = [
-  "Current Endgame: 1e12,000 tubas",
+  "Current Endgame: 1e135,000 tubas",
+  () => `${inChallenge("t",12) ? `Tuba gain is divided by ${format(player.t.divisor)}` : ``}`,
 ]
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte(new Decimal("1e12000"))
+	return player.points.gte(new Decimal("1e135000"))
 }
 
 
