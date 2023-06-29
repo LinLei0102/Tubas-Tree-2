@@ -469,7 +469,7 @@ addLayer("sh", {
       11: {
         title: "Shard Generator 1",
         cost(x) { return Decimal.pow(2,x) },
-        display() {return `Generates shards based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id])).max(1))}x<br>Effect: +${format(this.effect())} shards/second`},
+        display() {return `Generates shards based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]).max(1)).max(1))}x<br>Effect: +${format(this.effect())} shards/second`},
         canAfford() {return player.t.points.gte(this.cost())},
         buy() {
             player.t.points = player.t.points.sub(this.cost())
@@ -488,7 +488,7 @@ addLayer("sh", {
       12: {
         title: "Shard Generator 2",
         cost(x) { return new Decimal(20).mul(Decimal.pow(8,x)) },
-        display() {return `Generates Shard Generator 1 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id])).max(1))}x<br>Effect: +${format(this.effect())} SG1/second`},
+        display() {return `Generates Shard Generator 1 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]).max(1)).max(1))}x<br>Effect: +${format(this.effect())} SG1/second`},
         canAfford() {return player.t.points.gte(this.cost())},
         buy() {
             player.t.points = player.t.points.sub(this.cost())
@@ -505,7 +505,7 @@ addLayer("sh", {
       13: {
         title: "Shard Generator 3",
         cost(x) { return new Decimal(1000).mul(Decimal.pow(50,x)) },
-        display() {return `Generates Shard Generator 2 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id])).max(1))}x<br>Effect: +${format(this.effect())} SG2/second`},
+        display() {return `Generates Shard Generator 2 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]).max(1)).max(1))}x<br>Effect: +${format(this.effect())} SG2/second`},
         canAfford() {return player.t.points.gte(this.cost())},
         buy() {
             player.t.points = player.t.points.sub(this.cost())
@@ -522,7 +522,7 @@ addLayer("sh", {
       21: {
         title: "Shard Generator 4",
         cost(x) { return new Decimal(1e120).mul(Decimal.pow(100000,x)) },
-        display() {return `Generates Shard Generator 3 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id])).max(1))}x<br>Effect: +${format(this.effect())} SG3/second`},
+        display() {return `Generates Shard Generator 3 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]).max(1)).max(1))}x<br>Effect: +${format(this.effect())} SG3/second`},
         canAfford() {return player.t.points.gte(this.cost())},
         buy() {
             player.t.points = player.t.points.sub(this.cost())
@@ -539,7 +539,7 @@ addLayer("sh", {
       22: {
         title: "Shard Generator 5",
         cost(x) { return new Decimal(1e150).mul(Decimal.pow(1e10,x)) },
-        display() {return `Generates Shard Generator 4 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id])).max(1))}x<br>Effect: +${format(this.effect())} SG4/second`},
+        display() {return `Generates Shard Generator 4 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]).max(1)).max(1))}x<br>Effect: +${format(this.effect())} SG4/second`},
         canAfford() {return player.t.points.gte(this.cost())},
         buy() {
             player.t.points = player.t.points.sub(this.cost())
@@ -556,7 +556,7 @@ addLayer("sh", {
       23: {
         title: "Shard Generator 6",
         cost(x) { return new Decimal(1e200).mul(Decimal.pow(1e20,x)) },
-        display() {return `Generates Shard Generator 5 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id])).max(1))}x<br>Effect: +${format(this.effect())} SG5/second`},
+        display() {return `Generates Shard Generator 5 based on its amount.<br>Amount: ${format(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]))}<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect().div(getBuyableAmount(this.layer, this.id).add(player.sh.produced[this.id]).max(1)).max(1))}x<br>Effect: +${format(this.effect())} SG5/second`},
         canAfford() {return player.t.points.gte(this.cost())},
         buy() {
             player.t.points = player.t.points.sub(this.cost())

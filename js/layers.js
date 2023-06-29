@@ -1029,6 +1029,7 @@ addLayer("t", {
           ][challengeCompletions(this.layer, this.id)]
         },
         rewardEffect() {
+          if(challengeCompletions(this.layer, this.id) == 0) return new Decimal(1)
           if(challengeCompletions(this.layer, this.id) == 1) return new Decimal(1.02)
           if(challengeCompletions(this.layer, this.id) == 2) return new Decimal(1.03)
           if(challengeCompletions(this.layer, this.id) >= 3) return new Decimal(1.035)
